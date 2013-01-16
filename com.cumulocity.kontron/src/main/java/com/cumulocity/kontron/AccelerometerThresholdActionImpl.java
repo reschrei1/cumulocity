@@ -1,8 +1,8 @@
 /*
- * Copyright 2012 Nokia Siemens Networks 
+ * Copyright 2012 Cumulocity GmbH 
  */
 
-package com.nsn.m2m.intelagent;
+package com.cumulocity.kontron;
 
 import java.text.DecimalFormat;
 import java.util.Date;
@@ -11,15 +11,8 @@ import com.cumulocity.rest.representation.alarm.AlarmRepresentation;
 
 public class AccelerometerThresholdActionImpl implements AccelerometerThresholdAction
 {
-
-	@Override
 	public void action (AccelerometerXYZReading xyz, AccelerometerThresholds thr)
 	{
-		//String message = "thresholds x:(-" +  thr.negative_x + ", " + thr.positive_x + ") " +
-		//		"y:(-" +  thr.negative_y + ", " + thr.positive_y + ") " +
-		//		"z:(-" +  thr.negative_z + ", " + thr.positive_z + ") " +
-		//		"  XYZ reading : " + xyz.getX() + " " + xyz.getY() + " " + xyz.getZ() ;
-		
 		DecimalFormat df = new DecimalFormat("#.##") ;
 		StringBuffer msgBuffer = new StringBuffer("Threshold crossed: ") ;
 		if ( xyz.getX() < -thr.negative_x || xyz.getX() > thr.positive_x )
@@ -33,13 +26,13 @@ public class AccelerometerThresholdActionImpl implements AccelerometerThresholdA
 		System.out.println(message) ;
 		
 		AlarmRepresentation alarm = new AlarmRepresentation();
-		alarm.setType("com.nsn.m2m.intelagent.alarm.accelerometer.threshold") ;
+		alarm.setType("com.cumulocity.kontron.AccelerometerThreshold") ;
 		alarm.setSeverity("Major");
 		alarm.setText(message);
 		alarm.setStatus("Active");
 		alarm.setTime(new Date()); // set time to now
 		
-		M2MIntelAgentRepresentation.getInstance().sendAlarm(alarm) ;
+		M2MKontronAgentRepresentation.getInstance().sendAlarm(alarm) ;
 		
 	}
 

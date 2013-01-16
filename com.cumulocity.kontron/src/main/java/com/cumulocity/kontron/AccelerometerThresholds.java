@@ -1,8 +1,8 @@
 /*
- * Copyright 2012 Nokia Siemens Networks 
+ * Copyright 2012 Cumulocity GmbH 
  */
 
-package com.nsn.m2m.intelagent;
+package com.cumulocity.kontron;
 
 public class AccelerometerThresholds
 {

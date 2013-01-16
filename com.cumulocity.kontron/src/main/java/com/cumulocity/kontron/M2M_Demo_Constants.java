@@ -1,26 +1,24 @@
 /*
- * Copyright 2012 Nokia Siemens Networks 
+ * Copyright 2012 Cumulocity GmbH 
  */
 
-package com.nsn.m2m.intelagent;
+package com.cumulocity.kontron;
 
 public interface M2M_Demo_Constants
 {
-	public static final String INTEL_AGENT_TYPE = "com.nsn.m2m.IntelAgent" ;
-	public static final String INTEL_AGENT_ETH0_MAC_PROP = "eth0.mac.address" ;
-	public static final String INTEL_AGENT_DEFAULT_NAME = "Intel Smart Agent" ;
-	public static final String INTEL_AGENT_EXTERNAL_ID = "IntelSmartAgent" ;
-	public static final String INTEL_AGENT_EXTERNAL_TYPE = "com.cumulocity.intelagent.mac_id" ;
+	public static final String KONTRON_AGENT_TYPE = "com.cumulocity.KontronAgent" ;
+	public static final String KONTRON_AGENT_ETH0_MAC_PROP = "eth0.mac.address" ;
+	public static final String KONTRON_AGENT_DEFAULT_NAME = "Kontron Smart Agent" ;
+	public static final String KONTRON_AGENT_EXTERNAL_ID = "KontronSmartAgent" ;
+	public static final String KONTRON_AGENT_EXTERNAL_TYPE = "com.cumulocity.kontronagent.MacId" ;
 	public static final String FRI_ETH0_MAC_FILE = "/sys/class/net/eth0/address" ;
 	public static final String FRI_ETH0_MAC_DEFAULT = "00:00:00:00:00:00" ;
 	
-	
-	
-	public static final String PROPERTIES_FILE = "intel.agent.demo.properties" ;
+	public static final String PROPERTIES_FILE = "kontron.agent.properties" ;
 	public static final String PROP_C8Y_SERVER_URL = "c8y.server.url" ;
-	public static final String PROP_TENNANT = "tennant.name" ;
-	public static final String PROP_ADMIN_NAME = "admin.name" ;
-	public static final String PROP_ADMIN_PASS = "admin.password" ;
+	public static final String PROP_TENNANT = "tenant.name" ;
+	public static final String PROP_ADMIN_NAME = "user.name" ;
+	public static final String PROP_ADMIN_PASS = "user.password" ;
 	public static final String PROP_APPLICATION_KEY = "application.key" ;
 	public static final String PROP_READING_PERIOD = "reading.period" ;
 	
