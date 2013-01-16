@@ -1,8 +1,8 @@
 /*
- * Copyright 2012 Nokia Siemens Networks 
+ * Copyright 2012 Cumulocity GmbH 
  */
 
-package com.nsn.m2m.intelagent;
+package com.cumulocity.kontron;
 
 import java.util.Date;
 
@@ -34,7 +34,7 @@ public class AccelerometerReader implements Runnable
 		cli = new CLIService() ;
 		
 		// read current scale (sensitivity) - 2g, 4g or 8g
-		String line = cli.readFile(Main.prop.getProperty(M2M_Demo_Constants.ACCELEROMETER_FULL_SCALE)) ;
+		String line = cli.readFile(Activator.prop.getProperty(M2M_Demo_Constants.ACCELEROMETER_FULL_SCALE)) ;
 		scale = Integer.parseInt(line) ;
 		switch (scale)
 		{
@@ -61,14 +61,13 @@ public class AccelerometerReader implements Runnable
 	}
 
 	
-	@Override
 	public void run ()
 	{
 		System.out.println(" -> AccelerometerReader started") ;
 
 		while (running)
 		{
-			String line = cli.readFile(Main.prop.getProperty(M2M_Demo_Constants.ACCELEROMETER_XYZ_VALUES)) ;
+			String line = cli.readFile(Activator.prop.getProperty(M2M_Demo_Constants.ACCELEROMETER_XYZ_VALUES)) ;
 			//System.out.println(" AccelerometerReader : line = " + line) ;
 			String[] values = line.split(" ") ;
 			storeData(Integer.parseInt(values[1].trim()), Integer.parseInt(values[2].trim()), Integer.parseInt(values[3].trim())) ;

@@ -1,8 +1,8 @@
 /*
- * Copyright 2012 Nokia Siemens Networks 
+ * Copyright 2012 Cumulocity GmbH 
  */
 
-package com.nsn.m2m.intelagent;
+package com.cumulocity.kontron;
 
 import java.util.Date;
 import java.util.Properties;
@@ -21,7 +21,7 @@ import com.cumulocity.sdk.client.inventory.InventoryApi;
 import com.cumulocity.sdk.client.inventory.InventoryFilter;
 
 
-public class M2MIntelAgentRepresentation implements M2M_Demo_Constants
+public class M2MKontronAgentRepresentation implements M2M_Demo_Constants
 {
 
 	private ManagedObjectRepresentation agentMO = null ;
@@ -32,29 +32,27 @@ public class M2MIntelAgentRepresentation implements M2M_Demo_Constants
 	private String agentID = null ;
 	private int alarm_time_threshold = 20000 ;   //default
 	private Date lastAlarmDate = null ; 
-	private Properties props = null ;
-	private static M2MIntelAgentRepresentation thisInstance = null ;
+	private static M2MKontronAgentRepresentation thisInstance = null ;
 	private String eth0_mac = null ;
 	
 	
-	public static M2MIntelAgentRepresentation getInstance (Properties props)
+	public static M2MKontronAgentRepresentation getInstance (Properties props)
 	{
 		if (thisInstance == null) 
-			thisInstance = new M2MIntelAgentRepresentation (props) ;
+			thisInstance = new M2MKontronAgentRepresentation (props) ;
 		return thisInstance ;
 	}
 	
 	
-	public static M2MIntelAgentRepresentation getInstance ()
+	public static M2MKontronAgentRepresentation getInstance ()
 	{
 		return thisInstance ;
 	}
 	
 	
 	// find M2M device in C8Y, if not found creates it 
-	private M2MIntelAgentRepresentation (Properties props)
+	private M2MKontronAgentRepresentation (Properties props)
 	{
-		this.props = props ;
 		if (props.getProperty(PROP_C8Y_SERVER_URL).equalsIgnoreCase("none"))
 			return ;
 		
@@ -74,8 +72,8 @@ public class M2MIntelAgentRepresentation implements M2M_Demo_Constants
 		agentMO = getAgentRepresentation() ;
         if (agentMO == null)
         {
-        	System.out.println("Intel Agent MO not found. Attempting to create ...") ;
-        	agentMO = createIntelAgent() ;
+        	System.out.println("Kontron Agent MO not found. Attempting to create ...") ;
+        	agentMO = createKontronAgent() ;
         	if (agentMO == null)
         	{
         		System.out.println("Fatal Error : Cannot create Agent") ;
@@ -103,19 +101,19 @@ public class M2MIntelAgentRepresentation implements M2M_Demo_Constants
 		return agentMO != null ;
 	}
 	
-	private ManagedObjectRepresentation createIntelAgent ()
+	private ManagedObjectRepresentation createKontronAgent ()
     {
     	ManagedObjectRepresentation agentRet = null ;
     	ManagedObjectRepresentation agent = new ManagedObjectRepresentation() ;
-    	agent.setName(INTEL_AGENT_DEFAULT_NAME) ;
-    	agent.setType(INTEL_AGENT_TYPE); // including this one is not mandatory, but it provides meaningful information to user
+    	agent.setName(KONTRON_AGENT_DEFAULT_NAME) ;
+    	agent.setType(KONTRON_AGENT_TYPE); // including this one is not mandatory, but it provides meaningful information to user
     	agent.set(new com.cumulocity.model.Agent()); // agents must include this fragment
-    	agent.setProperty(INTEL_AGENT_ETH0_MAC_PROP, eth0_mac) ;
+    	agent.setProperty(KONTRON_AGENT_ETH0_MAC_PROP, eth0_mac) ;
     	
     	try {
     		inventoryApi.create(agent) ;
     		agentRet = getAgentRepresentation () ;
-            System.out.println("intel agent created, id = " + agentRet.getId().getValue()) ;
+            System.out.println("Kontron agent created, id = " + agentRet.getId().getValue()) ;
 		}
     	catch (SDKException e) {
     		System.out.println(e.getMessage()) ;
@@ -129,8 +127,8 @@ public class M2MIntelAgentRepresentation implements M2M_Demo_Constants
     private ExternalIDRepresentation createAgentExternalId (ManagedObjectRepresentation agent)
     {
     	ExternalIDRepresentation externalIDGid = new ExternalIDRepresentation();
-    	externalIDGid.setType(INTEL_AGENT_EXTERNAL_TYPE);
-    	externalIDGid.setExternalId(INTEL_AGENT_EXTERNAL_ID + "_" + eth0_mac);
+    	externalIDGid.setType(KONTRON_AGENT_EXTERNAL_TYPE);
+    	externalIDGid.setExternalId(KONTRON_AGENT_EXTERNAL_ID + "_" + eth0_mac);
     	externalIDGid.setManagedObject(agent);
     	ExternalIDRepresentation id = null ;
     	try {	    	
@@ -148,7 +146,7 @@ public class M2MIntelAgentRepresentation implements M2M_Demo_Constants
     {
     	ManagedObjectRepresentation agent = null ;
         InventoryFilter inventoryFilter = new InventoryFilter();
-        inventoryFilter.byType(INTEL_AGENT_TYPE) ;
+        inventoryFilter.byType(KONTRON_AGENT_TYPE) ;
                 
         try
         {
@@ -160,8 +158,8 @@ public class M2MIntelAgentRepresentation implements M2M_Demo_Constants
         	{
         		for (ManagedObjectRepresentation mo : mos.getManagedObjects())
         		{
-        			if (mo.getName().equals(INTEL_AGENT_DEFAULT_NAME) &&
-        					mo.getProperty(INTEL_AGENT_ETH0_MAC_PROP).equals(eth0_mac))
+        			if (mo.getName().equals(KONTRON_AGENT_DEFAULT_NAME) &&
+        					mo.getProperty(KONTRON_AGENT_ETH0_MAC_PROP).equals(eth0_mac))
         				agent = mo ;
         			//System.out.println("agent = " + mo.getId().getValue()) ;
         		}

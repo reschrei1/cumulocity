@@ -1,8 +1,8 @@
 /*
- * Copyright 2012 Nokia Siemens Networks 
+ * Copyright 2012 Cumulocity GmbH 
  */
 
-package com.nsn.m2m.intelagent;
+package com.cumulocity.kontron;
 
 import com.cumulocity.rest.representation.alarm.AlarmRepresentation;
 import com.cumulocity.sdk.client.SDKException;
@@ -29,8 +29,6 @@ public class AlarmSender implements Runnable
 		 t.start() ;
 	}
 	
-	
-	@Override
 	public void run()
 	{
         try {
