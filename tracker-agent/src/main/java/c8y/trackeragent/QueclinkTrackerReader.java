@@ -25,7 +25,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.net.Socket;
-import java.util.Date;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,83 +44,79 @@ public class QueclinkTrackerReader implements Runnable {
 	public void run() {
 		try (InputStream is = client.getInputStream();
 				BufferedInputStream bis = new BufferedInputStream(is)) {
-
-			String command;	
-			while ((command = readCommand(is)) != null) {
-				execute(command);
-			}			
+			processReports(is);
 		} catch (IOException e) {
-			logger.warn(
-					"Exception caught during communication with client device",
-					e);
+			logger.warn("Error during communication with client device", e);
 		} catch (SDKException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-		
+			logger.warn("Error during communication with the platform", e);
+		}
+	}
+
+	void processReports(InputStream is) throws IOException, SDKException {
+		String command;
+		while ((command = readCommand(is)) != null) {
+			execute(command);
+		}
 	}
 
 	private String readCommand(InputStream is) throws IOException {
 		StringBuffer result = new StringBuffer();
-		int c=0;
-		
+		int c;
+
 		while ((c = is.read()) != -1) {
-			if ((char)c == CMD_SEPARATOR) {
+			if ((char) c == CMD_SEPARATOR) {
 				break;
 			}
-			if ((char)c == '\n') {
+			if ((char) c == '\n') {
 				continue;
 			}
-			result.append((char)c);
+			result.append((char) c);
 		}
-		
+
 		if (c == -1) {
 			return null;
 		}
-		
+
 		return result.toString();
 	}
-	
+
 	private String execute(String command) throws SDKException {
-        logger.debug("Executing " + command);
+		logger.debug("Executing " + command);
 		String[] parameters = command.split(FIELD_SEPARATOR);
 		String header = parameters[0];
-		
+
 		switch (header) {
-        case "+RESP:GTFRI":  //update the location with the new position
-            ReportParameters reportParameters = new ReportParameters(parameters);
-            trackerMgr.locationUpdate(reportParameters.getImei(), new BigDecimal(reportParameters.getLatitude()), new BigDecimal(reportParameters.getLongitude()), new BigDecimal(reportParameters.getAltitude()));
-            break;
-        case "+RESP:GTPFA": //power 
-            PowerReportParametes powerOffReportParametes = new PowerReportParametes(parameters);
-            //TODO Report an alarm : Power off
-            break;
-        case "+RESP:GTPNA":
-            PowerReportParametes powerOnReportParametes = new PowerReportParametes(parameters);
-            System.out.println("power on");
-            //TODO Report an alarm: Power on
-            break;
-        case "+RESP:GTBPL":
-            BatteryReportParameters batteryReportParameters = new BatteryReportParameters(parameters);
-            //TODO Report an alarm: 
-        default:
-            break;
-        }
-	/*	
-		if ("+RESP:GTFRI".equals(parameters[0])) {
-		    ReportParameters reportParameters = new ReportParameters(parameters);
-	        trackerMgr.locationUpdate(reportParameters.getImei(), new BigDecimal(reportParameters.getLatitude()), new BigDecimal(reportParameters.getLongitude()), new BigDecimal(reportParameters.getAltitude()));
+		case "+RESP:GTFRI": // update the location with the new position
+			ReportParameters reportParameters = new ReportParameters(parameters);
+			trackerMgr.locationUpdate(reportParameters.getImei(),
+					new BigDecimal(reportParameters.getLatitude()),
+					new BigDecimal(reportParameters.getLongitude()),
+					new BigDecimal(reportParameters.getAltitude()));
+			break;
+		case "+RESP:GTPFA": // power
+			PowerReportParametes powerOffReportParametes = new PowerReportParametes(
+					parameters);
+			// TODO Report an alarm : Power off
+			break;
+		case "+RESP:GTPNA":
+			PowerReportParametes powerOnReportParametes = new PowerReportParametes(
+					parameters);
+			System.out.println("power on");
+			// TODO Report an alarm: Power on
+			break;
+		case "+RESP:GTBPL":
+			BatteryReportParameters batteryReportParameters = new BatteryReportParameters(
+					parameters);
+			// TODO Report an alarm:
+		default:
+			break;
 		}
-		if("+RESP:GTPFA".equals(parameters[0])){
-		    
-		   	}
-*/
-		// Do the processing and invoke tracker mgr 
+
+		// Do the processing and invoke tracker mgr
 		// trackerMgr.locationUpdate(imei, latitude, longitude, altitude);
 
 		return null;
 	}
-	
 
 	private Logger logger = LoggerFactory.getLogger(Agent.class);
 	private Socket client;
