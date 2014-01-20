@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+ <meta charset="utf-8">
+ <title>Hello, world!</title>
+ <link rel="stylesheet" href="https://developer.cumulocity.com/ui/extjs/resources/css/ext-all-gray.css" type="text/css" media="screen" title="no title" charset="utf-8">
+ <link rel="stylesheet" href="https://developer.cumulocity.com/ui/resources/css/specific.css" type="text/css" media="screen" title="no title" charset="utf-8">
+ <link rel="stylesheet" href="https://developer.cumulocity.com/ui/resources/css/neutral.css" type="text/css" media="screen">
+ <script src="https://developer.cumulocity.com/ui/extjs/ext-all.js" type="text/javascript" charset="utf-8"></script>
+
+ <!-- Define Root URL for api calls -->
+ <script type="text/javascript" charset="utf-8">
+ var rooturl = 'https://developer.cumulocity.com';
+ var APP_KEY = 'uL27no8nhvLlYmW1JIK1CA==';
+ </script>
+</head>
+<body>
+
+ <div id="c8ypageloading"><span></span></div>
+
+ <script src="https://developer.cumulocity.com/ui/clientlib/clientlib.js" type="text/javascript" charset="utf-8"></script>
+ <script src="https://developer.cumulocity.com/ui/guilib/common.js" type="text/javascript" charset="utf-8"></script>
+ <script src="https://developer.cumulocity.com/ui/guilib/view.js" type="text/javascript" charset="utf-8"></script>
+
+ <script>
+    C8Y.application( {
+      name : 'APP',
+      header: 'neutralheader',
+      footer: 'neutralfooter',
+      items : [
+        {
+          xtype : 'c8yinventorygrid',
+          menuOption : 'Inventory',
+          iconCls : 'iconInventory',
+          actionBtns  : [
+            {
+              text  : 'Managed objects',
+              cls   : 'x-btn-inner',
+              xtype : 'label'
+            }
+          ],
+          loadMOs : true
+        }
+      ]
+    });
+ </script>
+</body>
+</html>
