@@ -77,6 +77,7 @@ public class Server implements Runnable {
     public void init() {
         try {
             this.serverSocket = new ServerSocket(trackerContext.getConfiguration().getLocalPort());
+            serverSocket.setSoTimeout(3000);
         } catch (IOException e) {
             throw new RuntimeException("Cant init agent tracker server!", e);
         }
@@ -121,6 +122,7 @@ public class Server implements Runnable {
     }
 
     private ConnectedTracker peekTracker(Socket client) throws IOException {
+        logger.debug("peekTracker for new connection...");
         InputStream bis = asInput(client);
         bis.mark(1);
         int marker = bis.read();
