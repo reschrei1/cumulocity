@@ -1,9 +1,13 @@
 package c8y.trackeragent;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.Socket;
 import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import c8y.trackeragent.utils.Devices;
@@ -16,7 +20,7 @@ public class TrackerStabilityIT extends TrackerITSupport {
 
     private final int parallelIndex = 2;
     private final static Random random = new Random();
-
+    
     @Test
     public void shouldWork() throws Exception {
         for (int i = 0; i < parallelIndex; i++) {
@@ -28,6 +32,7 @@ public class TrackerStabilityIT extends TrackerITSupport {
     }
 
     private String executeFirstStep() throws Exception {
+        writeToSocket(new byte[]{});
         String imei = Devices.randomImei();
         createNewDeviceRequest(imei);
         byte[] report = Reports.getTelicReportBytes(imei, Positions.ZERO, Positions.SAMPLE_1, Positions.SAMPLE_2, Positions.SAMPLE_3);
@@ -40,9 +45,13 @@ public class TrackerStabilityIT extends TrackerITSupport {
     }
 
     private void executeStep(String imei) throws Exception {
-        byte[] report = Reports.getTelicReportBytes(imei, Positions.random(), Positions.random(), Positions.random(), Positions.random());
-
-        // trigger bootstrap
+        byte[] report = null;
+        report = Reports.getTelicReportBytes(imei, Positions.random(), Positions.random(), Positions.random(), Positions.random());
+        
+        if(random.nextInt(2) == 0) {
+            System.out.println("send empty report");
+            report = new byte[]{};
+        } 
         writeToSocket(report);
     }
 
@@ -72,4 +81,23 @@ public class TrackerStabilityIT extends TrackerITSupport {
             step++;
         }
     }
+    
+    protected void writeToSocket(byte[] bis) throws Exception {
+        Socket socket = newSocket();
+        OutputStream outputStream = socket.getOutputStream();
+        outputStream.write(bis);
+        //outputStream.close();
+    }
+    
+    private Socket newSocket() throws IOException {
+        String socketHost = testConfig.getTrackerAgentHost();
+        int socketPort = testConfig.getTrackerAgentPort();
+        try {
+            return new Socket(socketHost, socketPort);
+        } catch (IOException ex) {
+            System.out.println("Cant connect to socket, host = " + socketHost + ", port = " + socketPort);
+            throw ex;
+        }
+    }
+
 }
