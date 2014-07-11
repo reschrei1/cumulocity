@@ -34,11 +34,18 @@ import c8y.tinkerforge.bricklet.TemperatureBricklet;
 import com.tinkerforge.BrickMaster;
 import com.tinkerforge.BrickletAmbientLight;
 import com.tinkerforge.BrickletBarometer;
+import com.tinkerforge.BrickletCurrent12;
+import com.tinkerforge.BrickletCurrent25;
 import com.tinkerforge.BrickletDistanceIR;
 import com.tinkerforge.BrickletDualRelay;
 import com.tinkerforge.BrickletGPS;
 import com.tinkerforge.BrickletHumidity;
 import com.tinkerforge.BrickletLCD20x4;
+import com.tinkerforge.BrickletMoisture;
+import com.tinkerforge.BrickletMotionDetector;
+import com.tinkerforge.BrickletPTC;
+import com.tinkerforge.BrickletRemoteSwitch;
+import com.tinkerforge.BrickletSegmentDisplay4x7;
 import com.tinkerforge.BrickletTemperature;
 import com.tinkerforge.IPConnection;
 
@@ -63,10 +70,6 @@ public class BrickletFactory {
 			return new BrickletAnalogIn(uid, ipcon);
 		case BrickletAnalogOut.DEVICE_IDENTIFIER:
 			return new BrickletAnalogOut(uid, ipcon);
-		case BrickletCurrent12.DEVICE_IDENTIFIER:
-			return new BrickletCurrent12(uid, ipcon);
-		case BrickletCurrent25.DEVICE_IDENTIFIER:
-			return new BrickletCurrent25(uid, ipcon);
 		case BrickletIndustrialDigitalIn4.DEVICE_IDENTIFIER:
 			return new BrickletIndustrialDigitalIn4(uid, ipcon);
 		case BrickletIndustrialDigitalOut4.DEVICE_IDENTIFIER:
@@ -85,8 +88,6 @@ public class BrickletFactory {
 			return new BrickletLinearPoti(uid, ipcon);
 		case BrickletPiezoBuzzer.DEVICE_IDENTIFIER:
 			return new BrickletPiezoBuzzer(uid, ipcon);
-		case BrickletPTC.DEVICE_IDENTIFIER:
-			return new BrickletPTC(uid, ipcon);
 		case BrickletRotaryPoti.DEVICE_IDENTIFIER:
 			return new BrickletRotaryPoti(uid, ipcon);
 		case BrickletTemperatureIR.DEVICE_IDENTIFIER:
@@ -120,6 +121,20 @@ public class BrickletFactory {
 			return new DisplayBricklet(uid, new BrickletLCD20x4(uid, ipcon));
 		case BrickletTemperature.DEVICE_IDENTIFIER:
 			return new TemperatureBricklet(uid, new BrickletTemperature(uid, ipcon));
+		case BrickletMotionDetector.DEVICE_IDENTIFIER:
+			return new MotionDetectorBricklet(uid, new BrickletMotionDetector(uid, ipcon));
+		case BrickletRemoteSwitch.DEVICE_IDENTIFIER:
+			return new RemoteSwitchBricklet(uid, new BrickletRemoteSwitch(uid, ipcon));
+		case BrickletPTC.DEVICE_IDENTIFIER:
+			return new PTCBricklet(uid, new BrickletPTC(uid, ipcon));
+		case BrickletSegmentDisplay4x7.DEVICE_IDENTIFIER:
+			return new SegmentDisplay4x7(uid, new BrickletSegmentDisplay4x7(uid, ipcon));
+		case BrickletMoisture.DEVICE_IDENTIFIER:
+			return new MoistureBricklet(uid, new BrickletMoisture(uid, ipcon));
+		case BrickletCurrent12.DEVICE_IDENTIFIER:
+			return new Current12Bricklet(uid, new BrickletCurrent12(uid, ipcon));
+		case BrickletCurrent25.DEVICE_IDENTIFIER:
+			return new Current25Bricklet(uid, new BrickletCurrent25(uid, ipcon));
 		default:
 			throw new IllegalArgumentException("Unknown device identifier: "
 					+ deviceIdentifier);
