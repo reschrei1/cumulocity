@@ -28,7 +28,8 @@ public class TixiLogHandlerTest extends BaseTixiHandlerTest {
 
 	@Before
 	public void init() {
-		tixiLogHandler = new TixiLogHandler(deviceContextService, identityRepository, inventoryRepository, measurementApi, logDefinitionRegister);
+		tixiLogHandler = new TixiLogHandler(deviceContextService, inventoryRepository, 
+				measurementApi, logDefinitionRegister, deviceControlRepository);
 		measurementCaptor = ArgumentCaptor.forClass(MeasurementRepresentation.class);
 	}
 
@@ -54,7 +55,7 @@ public class TixiLogHandlerTest extends BaseTixiHandlerTest {
 		// @formatter:on
 		when(logDefinitionRegister.getLogDefinition()).thenReturn(logDefinition);
 		
-		tixiLogHandler.handle(log);
+		tixiLogHandler.handle(log, "itemSet_1");
 		
 		verify(measurementApi, Mockito.times(1)).create(measurementCaptor.capture());
 		MeasurementRepresentation rep = measurementCaptor.getValue();
@@ -63,8 +64,8 @@ public class TixiLogHandlerTest extends BaseTixiHandlerTest {
 		assertThat(rep.getType()).isEqualTo("c8y_tixiMeasurement");
 	}
 	
-	private static Map<String, BigDecimal> aMeasurementValue(int value) {
-		Map<String, BigDecimal> measurementValue = new HashMap<>();
+	private static Map<String, Object> aMeasurementValue(int value) {
+		Map<String, Object> measurementValue = new HashMap<>();
 		measurementValue.put("value", BigDecimal.valueOf(value));
 		return measurementValue;
 	}

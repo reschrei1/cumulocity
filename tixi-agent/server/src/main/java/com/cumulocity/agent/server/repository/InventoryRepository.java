@@ -5,9 +5,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import c8y.IsDevice;
+
+import com.cumulocity.model.Agent;
 import com.cumulocity.model.ID;
 import com.cumulocity.model.idtype.GId;
 import com.cumulocity.rest.representation.inventory.ManagedObjectRepresentation;
+import com.cumulocity.sdk.client.SDKException;
 import com.cumulocity.sdk.client.inventory.InventoryApi;
 import com.cumulocity.tixi.server.model.SerialNumber;
 
@@ -48,10 +52,53 @@ public class InventoryRepository {
 		identityRepository.save(managedObjectRepresentation.getId(), deviceSerial);
 	    return managedObjectRepresentation;
     }
+	
+	public ManagedObjectRepresentation saveDeviceIfNotExists(SerialNumber serial, GId parentId) {
+		ManagedObjectRepresentation managedObjectRepresentation  = findMoOrNull(serial);
+		if(managedObjectRepresentation != null) {
+			return managedObjectRepresentation;
+		}
+		logger.debug("Create device for serial: {} and agent: {}.", serial, parentId);
+		managedObjectRepresentation = new ManagedObjectRepresentation();
+		managedObjectRepresentation.set(new IsDevice());
+		managedObjectRepresentation.setName(serial.getValue());
+		managedObjectRepresentation.setType("tixi_device");
+		managedObjectRepresentation = save(managedObjectRepresentation, serial);
+		bindToAgent(parentId, managedObjectRepresentation.getId());
+		logger.debug("Device for serial: {} created: {}.", serial, managedObjectRepresentation);
+		return managedObjectRepresentation;
+	}
+	
+	public ManagedObjectRepresentation saveAgentIfNotExists(String type, String name, SerialNumber serial, GId parentId) {
+		ManagedObjectRepresentation managedObjectRepresentation  = findMoOrNull(serial);
+		if(managedObjectRepresentation != null) {
+			return managedObjectRepresentation;
+		}
+		logger.debug("Create agent for serial: {}.", serial);
+		managedObjectRepresentation = new ManagedObjectRepresentation();
+		managedObjectRepresentation.set(new IsDevice());
+		managedObjectRepresentation.setName(name);
+		managedObjectRepresentation.set(new Agent());
+		managedObjectRepresentation.setType(type);
+		managedObjectRepresentation = save(managedObjectRepresentation, serial);
+		if(parentId != null) {
+			bindToAgent(parentId, managedObjectRepresentation.getId());
+		}
+		logger.debug("Agent for serial: {} created: {}.", serial, managedObjectRepresentation);
+		return managedObjectRepresentation;
+	}
 
     public void bindToAgent(GId agentId, GId deviceId) {
     	logger.debug("Bind device: {} to agentId {}.", deviceId, agentId);
     	inventoryApi.getManagedObjectApi(agentId).addChildDevice(deviceId);
     }
+    
+	private ManagedObjectRepresentation findMoOrNull(SerialNumber agentSerial) {
+		try {
+			return findByExternalId(agentSerial);
+		} catch (SDKException sdkEx) {
+			return null;
+		}
+	}
 
 }
