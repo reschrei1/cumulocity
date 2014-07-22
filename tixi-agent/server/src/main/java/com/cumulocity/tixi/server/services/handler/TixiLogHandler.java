@@ -23,9 +23,9 @@ import com.cumulocity.sdk.client.measurement.MeasurementApi;
 import com.cumulocity.tixi.server.model.SerialNumber;
 import com.cumulocity.tixi.server.model.txml.Log;
 import com.cumulocity.tixi.server.model.txml.LogDefinition;
-import com.cumulocity.tixi.server.model.txml.LogDefinitionItem;
 import com.cumulocity.tixi.server.model.txml.LogItem;
 import com.cumulocity.tixi.server.model.txml.LogItemSet;
+import com.cumulocity.tixi.server.model.txml.RecordItemDefinition;
 
 @Component
 @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
@@ -59,17 +59,17 @@ public class TixiLogHandler extends TixiHandler {
 			saveMeasurements();
 			logger.info("Log with id {} proccessed.", logId);
 		} catch (Exception ex) {
-			logger.info("Log with id {} processing failed.", ex);
-			deviceControlRepository.markAllOperationsFailed(tixiAgentId);
+			logger.info("Log with id " + logId + " processing failed.", ex);
+			deviceControlRepository.markAllOperationsFailed(agentId);
 			return;
 		}
-		deviceControlRepository.markAllOperationsSuccess(tixiAgentId);
+		deviceControlRepository.markAllOperationsSuccess(agentId);
 	}
 
 	private void handleItemSet(LogItemSet itemSet, String recordName) {
 		logger.debug("Proccess log item set with id {} and date {}.", itemSet.getId(), itemSet.getDateTime());
 	    for (LogItem item : itemSet.getItems()) {
-	    	LogDefinitionItem itemDef = logDefinition.getItem(recordName, item.getId());
+	    	RecordItemDefinition itemDef = logDefinition.getItem(recordName, item.getId());
 	    	if(itemDef == null) {
 	    		logger.warn("There is no log definition item for record: {}, itemSetId: {}," +
 	    				" itemId: {}; skip this log item.", recordName, logId, item.getId());
@@ -86,7 +86,7 @@ public class TixiLogHandler extends TixiHandler {
 	    logger.debug("Proccess log item set with id {} and date {}.", itemSet.getId(), itemSet.getDateTime());
     }
 
-	private void handleLogItem(LogItem item, LogDefinitionItem itemDef, Date date) {
+	private void handleLogItem(LogItem item, RecordItemDefinition itemDef, Date date) {
 		logger.trace("Proccess log {} item with id.", item.getId());
 		String deviceId = itemDef.getPath().getDeviceId();
 		MeasurementRepresentation measurement = getMeasurement(new MeasurementKey(deviceId, date));
@@ -118,7 +118,7 @@ public class TixiLogHandler extends TixiHandler {
 	    return measurementValue;
     }
 	
-	private static String asFragmentName(LogDefinitionItem itemDef) {
+	private static String asFragmentName(RecordItemDefinition itemDef) {
 	    return "c8y_" + itemDef.getPath().getName();
     }
 		
