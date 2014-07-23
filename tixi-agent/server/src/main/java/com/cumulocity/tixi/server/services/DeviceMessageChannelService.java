@@ -1,12 +1,12 @@
 package com.cumulocity.tixi.server.services;
 
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.io.IOException;
+import java.util.concurrent.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.task.TaskExecutor;
 import org.springframework.stereotype.Component;
 
 import c8y.inject.DeviceScope;
@@ -17,13 +17,15 @@ import com.cumulocity.tixi.server.services.MessageChannel.MessageChannelListener
 
 @Component
 @DeviceScope
-public class DeviceMessageChannelService {
+public class DeviceMessageChannelService implements InitializingBean {
 
     private static final Logger log = LoggerFactory.getLogger(DeviceMessageChannelService.class);
 
     private BlockingQueue<TixiRequest> requestQueue = new LinkedBlockingQueue<TixiRequest>();
 
     private TixiRequestFactory requestFactory;
+    
+    private ScheduledExecutorService executorService;
 
     private volatile MessageChannel<TixiRequest> output;
 
@@ -33,6 +35,12 @@ public class DeviceMessageChannelService {
     @Autowired
     public DeviceMessageChannelService(TixiRequestFactory requestFactory) {
         this.requestFactory = requestFactory;
+        this.executorService = Executors.newScheduledThreadPool(1);
+    }
+    
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        executorService.scheduleAtFixedRate(new WriteResponseCommand(), 1, 5, TimeUnit.SECONDS);
     }
 
     public void send(TixiRequest tixiRequest) {
@@ -42,7 +50,6 @@ public class DeviceMessageChannelService {
         } catch (InterruptedException e) {
             log.warn("Enqueu  tixi request failed", e);
         }
-        flushRequests();
     }
 
     public void send(TixiRequestType requestType) {
@@ -52,19 +59,18 @@ public class DeviceMessageChannelService {
     public void registerMessageOutput(MessageChannel<TixiRequest> output) {
         log.info("Registred new output");
         this.output = output;
-        flushRequests();
     }
-
-    private void flushRequests() {
-
-        if (output == null) {
-            log.debug("no output defined");
-            return;
-        }
-        TixiRequest request;
-        while ((request = requestQueue.poll()) != null) {
-            log.debug("Send new tixi request {}.", request);
-            output.send(new MessageChannelListener<TixiRequest>() {
+    
+    private class WriteResponseCommand implements Runnable {
+        public void run() {
+            if (output == null) {
+                log.debug("no output defined");
+                return;
+            }
+            try {
+                TixiRequest request = requestQueue.take();
+                log.debug("Send new tixi request {}.", request);
+                output.send(new MessageChannelListener<TixiRequest>() {
 
                 @Override
                 public void close(){
@@ -77,6 +83,9 @@ public class DeviceMessageChannelService {
 
                 }
             }, request);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 }

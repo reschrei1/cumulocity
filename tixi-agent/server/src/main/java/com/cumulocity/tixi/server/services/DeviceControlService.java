@@ -5,8 +5,6 @@ import static com.cumulocity.tixi.server.model.TixiRequestType.LOG;
 
 import java.io.IOException;
 
-import javax.annotation.PostConstruct;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -16,7 +14,6 @@ import org.springframework.stereotype.Component;
 import c8y.MeasurementRequestOperation;
 import c8y.inject.DeviceScope;
 
-import com.cumulocity.agent.server.context.DeviceContextService;
 import com.cumulocity.agent.server.repository.DeviceControlRepository;
 import com.cumulocity.model.ID;
 import com.cumulocity.model.idtype.GId;
@@ -44,16 +41,13 @@ public class DeviceControlService {
 
     private final DeviceControlRepository repository;
 
-    private final DeviceContextService contextService;
-
     @Autowired
     public DeviceControlService(DeviceControlRepository repository, DeviceMessageChannelService deviceMessageChannelService,
-            TixiRequestFactory requestFactory, LogDefinitionRegister logDefinitionRegister, DeviceContextService deviceContextService) {
+            TixiRequestFactory requestFactory, LogDefinitionRegister logDefinitionRegister) {
         this.repository = repository;
         this.deviceMessageChannelService = deviceMessageChannelService;
         this.requestFactory = requestFactory;
         this.logDefinitionRegister = logDefinitionRegister;
-        this.contextService = deviceContextService;
     }
 
     private void subscirbe(GId deviceId, final MessageChannel<MeasurementRequestOperation> messageChannel) {
