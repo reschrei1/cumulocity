@@ -1,9 +1,14 @@
 package com.cumulocity.tixi.server.services;
 
-import java.io.Closeable;
 
-public interface MessageChannel<T> extends Closeable {
 
-    void send(MessageChannelContext context, T message);
-
+public interface MessageChannel<T> {
+    public interface MessageChannelListener<T> {
+        void failed(T message);
+        void close();
+    }
+    
+    void send(MessageChannelListener<T> context, T message);
+    
 }
+    

@@ -1,5 +1,6 @@
 package com.cumulocity.tixi.server.resources;
 
+import static com.cumulocity.model.idtype.GId.asString;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 
@@ -14,7 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.cumulocity.model.idtype.GId;
+import com.cumulocity.rest.representation.inventory.ManagedObjectRepresentation;
 import com.cumulocity.tixi.server.model.SerialNumber;
 import com.cumulocity.tixi.server.model.TixiDeviceCredentails;
 import com.cumulocity.tixi.server.services.DeviceService;
@@ -40,10 +41,11 @@ public class RegisterResource {
     }
 
     private Response bootstrap(final String serial) {
-        final TixiDeviceCredentails credentials = deviceService.register(new SerialNumber(serial));
+        final TixiDeviceCredentails credentials = deviceService.bootstrap(new SerialNumber(serial));
+        logger.info("Device for serial {} registerd: {}.", serial, credentials);
         // @formatter:off
         return Response.ok(
-                new TixiJsonResponse("REGISTER")
+                new TixiRequest("REGISTER")
                 .set("user", credentials.getUser())
                 .set("password", credentials.getPassword())
                 .set("deviceID", credentials.getDeviceID())
@@ -52,7 +54,12 @@ public class RegisterResource {
     }
 
     private Response standard(final String serial) {
-        return Response.ok(new TixiJsonResponse("REGISTER").set("deviceID", GId.asString(deviceService.findGId(new SerialNumber(serial)))))
+    	// @formatter:off
+        final ManagedObjectRepresentation device = deviceService.saveTixiAgent(new SerialNumber(serial));
+        return Response.ok(
+        		new TixiRequest("REGISTER")
+        		.set("deviceID", asString(device.getId())))
                 .build();
+        // @formatter:on
     }
 }
