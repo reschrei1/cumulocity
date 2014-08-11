@@ -1,0 +1,7 @@
+(^|/)\.
+target
+bin
+.*\.iml
+.*\.orig
+cucumber.html
+dependency-reduced-pom.xml
