@@ -8,6 +8,11 @@ public class TrackerConfiguration {
     private String bootstrapPassword;
     private String bootstrapTenant;
     private int clientTimeout;
+    private String proxy;
+
+    private int proxyport;
+    private String devicePassword;
+
 
     public String getPlatformHost() {
         return platformHost;
@@ -63,7 +68,48 @@ public class TrackerConfiguration {
         return this;
     }
 
-    @Override
+	public String getProxy() {
+		return proxy;
+	}
+
+	public TrackerConfiguration setProxy(String proxy) {
+
+		this.proxy = proxy;
+		return this;
+	}
+
+	public int getProxyport() {
+		return proxyport;
+	}
+
+	public TrackerConfiguration setProxyport(int proxyport) {
+		
+		this.proxyport = proxyport;
+		
+		return this;
+	}
+
+	public TrackerConfiguration setProxyport(String proxyport) {
+		try {
+			this.proxyport = new Integer(proxyport);
+		} catch (NumberFormatException e) {
+			// Proxy Port not configured
+
+		}
+		return this;
+	}
+	
+	
+    public String getDevicePassword() {
+		return devicePassword;
+	}
+
+	public TrackerConfiguration setDevicePassword(String devicePassword) {
+		this.devicePassword = devicePassword;
+		return this;
+	}
+
+	@Override
     public String toString() {
         return String.format("TrackerConfiguration [platformHost=%s, localPort=%s, bootstrapUser=%s, bootstrapPassword=%s, bootstrapTenant=%s, clientTimeout=%s]", platformHost, localPort,
                 bootstrapUser, bootstrapPassword, bootstrapTenant, clientTimeout);
