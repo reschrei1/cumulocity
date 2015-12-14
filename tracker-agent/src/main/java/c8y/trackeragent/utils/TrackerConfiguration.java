@@ -1,5 +1,10 @@
 package c8y.trackeragent.utils;
 
+import java.util.Arrays;
+import java.util.List;
+
+import com.cumulocity.sdk.client.polling.PollingStrategy;
+
 public class TrackerConfiguration {
 
     private String platformHost;
@@ -8,6 +13,12 @@ public class TrackerConfiguration {
     private String bootstrapPassword;
     private String bootstrapTenant;
     private int clientTimeout;
+    private List<Long> bootstrapPollIntervals;
+    private String cobanLocationReportTimeInterval;
+    
+    public TrackerConfiguration() {
+        this.bootstrapPollIntervals = Arrays.asList(PollingStrategy.DEFAULT_POLL_INTERVALS);
+    }
 
     public String getPlatformHost() {
         return platformHost;
@@ -62,11 +73,31 @@ public class TrackerConfiguration {
         this.clientTimeout = clientTimeout;
         return this;
     }
+    
+    public List<Long> getBootstrapPollIntervals() {
+        return bootstrapPollIntervals;
+    }
+
+    public TrackerConfiguration setBootstrapPollIntervals(List<Long> bootstrapPollIntervals) {
+        this.bootstrapPollIntervals = bootstrapPollIntervals;
+        return this;
+    }
+    
+    public String getCobanLocationReportTimeInterval() {
+        return cobanLocationReportTimeInterval;
+    }
+
+    public TrackerConfiguration setCobanLocationReportTimeInterval(String cobanDefaultLocationReportInterval) {
+        this.cobanLocationReportTimeInterval = cobanDefaultLocationReportInterval;
+        return this;
+    }
 
     @Override
     public String toString() {
-        return String.format("TrackerConfiguration [platformHost=%s, localPort=%s, bootstrapUser=%s, bootstrapPassword=%s, bootstrapTenant=%s, clientTimeout=%s]", platformHost, localPort,
-                bootstrapUser, bootstrapPassword, bootstrapTenant, clientTimeout);
+        return String
+                .format("TrackerConfiguration [platformHost=%s, localPort=%s, bootstrapUser=%s, bootstrapPassword=%s, bootstrapTenant=%s, clientTimeout=%s, bootstrapPollIntervals=%s, cobanLocationReportTimeInterval=%s]",
+                        platformHost, localPort, bootstrapUser, bootstrapPassword, bootstrapTenant, clientTimeout,
+                        bootstrapPollIntervals, cobanLocationReportTimeInterval);
     }
     
 }

@@ -3,15 +3,17 @@ package c8y.trackeragent.utils;
 import static java.lang.Integer.parseInt;
 import static java.lang.String.format;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
+import java.util.Random;
 
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import c8y.trackeragent.protocol.coban.CobanConstants;
 
 import com.cumulocity.sdk.client.SDKException;
 
@@ -26,7 +28,9 @@ public class ConfigUtils {
     private static final String BOOTSTRAP_USER_PROP = "bootstrap.user";
     private static final String BOOTSTRAP_PASSWORD_PROP = "bootstrap.password";
     private static final String CLIENT_TIMEOUT_PROP = "client.timeout";
+    private static final String COBAN_LOCATION_REPORT_INTERVAL_PROP = "coban.locationReport.timeInterval";
     private static final String DEFAULT_CLIENT_TIMEOUT = String.valueOf(5 * 60 * 1000);
+    private static final Random random = new Random();
     
     private static final ConfigUtils instance = create();
     
@@ -35,21 +39,15 @@ public class ConfigUtils {
      * On production it's /etc/tracker-agent.
      * On tests it's target/test-classes.
      */
-    private final String configDir;
-    
-    private ConfigUtils(String configDir) {
-        this.configDir = configDir;
-    }
-    
     public static ConfigUtils get() {
         return instance;
     }
 
     public String getConfigFilePath(String fileName) {
-        return configDir + File.separator + fileName;
+        return "/etc/tracker-agent/" + fileName;
     }
     
-    public Properties getProperties(String path) throws SDKException {
+    public static Properties getProperties(String path) throws SDKException {
         Properties source = new Properties();
         InputStream io = null;
         try {
@@ -66,15 +64,15 @@ public class ConfigUtils {
     public TrackerConfiguration loadCommonConfiguration() {
         String sourceFilePath = getConfigFilePath(SOURCE_FILE);
         Properties props = getProperties(sourceFilePath);
-        int port = parseInt(getProperty(props, LOCAL_SOCKET_PORT_PROP, DEFAULT_LOCAL_SOCKET_PORT));
         int clientTimeout = parseInt(getProperty(props, CLIENT_TIMEOUT_PROP, DEFAULT_CLIENT_TIMEOUT));
         //@formatter:off
         TrackerConfiguration config = new TrackerConfiguration()
             .setPlatformHost(getProperty(SOURCE_FILE, props, PLATFORM_HOST_PROP))
-            .setLocalPort(port)
+            .setLocalPort(getSocketPort(props))
             .setBootstrapUser(getProperty(SOURCE_FILE, props, BOOTSTRAP_USER_PROP))
             .setBootstrapPassword(getProperty(SOURCE_FILE, props, BOOTSTRAP_PASSWORD_PROP))
             .setBootstrapTenant("management")
+            .setCobanLocationReportTimeInterval(props.getProperty(COBAN_LOCATION_REPORT_INTERVAL_PROP, CobanConstants.DEFAULT_LOCATION_REPORT_INTERVAL))
             .setClientTimeout(clientTimeout);
         //@formatter:on
         logger.info(format("Configuration loaded from: %s: %s", sourceFilePath, config));
@@ -83,24 +81,9 @@ public class ConfigUtils {
     }
 
     private static ConfigUtils create() {
-        return new ConfigUtils(getConfigDir());
+        return new ConfigUtils();
     }
     
-    private static String getConfigDir() {
-        Properties props = new Properties();
-        InputStream io = null;
-        try {
-            io = ConfigUtils.class.getResourceAsStream("/config.properties");
-            props.load(io);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } finally {
-            IOUtils.closeQuietly(io);
-        }
-        return props.getProperty("configDir");
-    }
-    
-
     private String getProperty(String path, Properties props, String key) {
         String value = getProperty(props, key, null);
         if (value == null) {
@@ -111,6 +94,15 @@ public class ConfigUtils {
     
     private String getProperty(Properties props, String key, String defaultValue) {
         return props.getProperty(key, defaultValue);
+    }
+    
+    private int getSocketPort(Properties props) {
+        String port = getProperty(props, LOCAL_SOCKET_PORT_PROP, DEFAULT_LOCAL_SOCKET_PORT);
+        return "$random".equals(port) ? randomPort() : parseInt(port);
+    }
+    
+    private static int randomPort() {
+        return random.nextInt(20000) + 40000;
     }
 
 }

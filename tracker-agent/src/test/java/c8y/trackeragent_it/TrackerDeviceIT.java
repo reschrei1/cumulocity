@@ -18,7 +18,7 @@
  * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package c8y.trackeragent;
+package c8y.trackeragent_it;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -36,8 +36,13 @@ import c8y.IsDevice;
 import c8y.MotionTracking;
 import c8y.Position;
 import c8y.SupportedOperations;
+import c8y.trackeragent.ConnectionRegistry;
+import c8y.trackeragent.Executor;
+import c8y.trackeragent.TrackerAgent;
+import c8y.trackeragent.TrackerDevice;
 import c8y.trackeragent.devicebootstrap.DeviceCredentials;
 import c8y.trackeragent.devicebootstrap.DeviceCredentialsRepository;
+import c8y.trackeragent.operations.OperationContext;
 import c8y.trackeragent.utils.Devices;
 import c8y.trackeragent.utils.TrackerContext;
 
@@ -48,7 +53,6 @@ import com.cumulocity.rest.representation.alarm.AlarmRepresentation;
 import com.cumulocity.rest.representation.identity.ExternalIDRepresentation;
 import com.cumulocity.rest.representation.inventory.ManagedObjectRepresentation;
 import com.cumulocity.rest.representation.measurement.MeasurementRepresentation;
-import com.cumulocity.rest.representation.operation.OperationRepresentation;
 import com.cumulocity.sdk.client.SDKException;
 import com.cumulocity.sdk.client.alarm.AlarmApi;
 import com.cumulocity.sdk.client.alarm.AlarmFilter;
@@ -79,7 +83,7 @@ public class TrackerDeviceIT extends TrackerITSupport {
 
         ConnectionRegistry.instance().put(IMEI, new Executor() {
             @Override
-            public void execute(OperationRepresentation operation) throws IOException {
+            public void execute(OperationContext operation) throws IOException {
                 // Nothing
             }
         });
@@ -119,7 +123,7 @@ public class TrackerDeviceIT extends TrackerITSupport {
         device.setMotionTracking(true);
 
         device.geofenceAlarm(true);
-        device.motionAlarm(true);
+        device.motionEvent(true);
         device.powerAlarm(true, true);
         device.batteryLevel(50);
         device.signalStrength(new BigDecimal(22), new BigDecimal(2));
@@ -127,7 +131,7 @@ public class TrackerDeviceIT extends TrackerITSupport {
         Thread.sleep(2000);
 
         device.geofenceAlarm(false);
-        device.motionAlarm(false);
+        device.motionEvent(false);
         device.powerAlarm(false, true);
         device.batteryLevel(48);
         device.signalStrength(new BigDecimal(21), new BigDecimal(3));
