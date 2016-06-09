@@ -68,7 +68,7 @@ public class MeasurementService {
         measurement.set(speedFragment);
         measurement.setType("c8y_Speed");
         measurement.setSource(asSource(device));
-        measurement.setTime(date.toDate());
+        measurement.setDateTime(date);
         return measurement;
     }
 
@@ -89,7 +89,7 @@ public class MeasurementService {
         measurement.set(batteryFragment);
         measurement.setType(TrackerDevice.BAT_TYPE);
         measurement.setSource(asSource(device));
-        measurement.setTime(date.toDate());
+        measurement.setDateTime(date);
         device.createMeasurement(measurement);
         return measurement;
     }
@@ -107,7 +107,7 @@ public class MeasurementService {
         measurement.set(signalFragment,"c8y_SignalStrength");
         measurement.setType("c8y_SignalStrength");
         measurement.setSource(asSource(device));
-        measurement.setTime(date.toDate());
+        measurement.setDateTime(date);
         device.createMeasurement(measurement);
         return measurement;
     }
@@ -134,7 +134,7 @@ public class MeasurementService {
         measurement.set(altFragment, "c8y_Altitude");
         measurement.setType("c8y_Altitude");
         measurement.setSource(asSource(device));
-        measurement.setTime(date.toDate());
+        measurement.setDateTime(date);
         logger.debug("Create altitude measurement: ", measurement);
         device.createMeasurement(measurement);
         return altFragment;
@@ -147,7 +147,7 @@ public class MeasurementService {
 
     private MeasurementRepresentation asMeasurementWithMileage(BigDecimal mileage, TrackerDevice device, DateTime date) {
         MeasurementRepresentation representation = new MeasurementRepresentation();
-        representation.setTime(date.toDate());
+        representation.setDateTime(date);
         representation.setSource(asSource(device));
         representation.setType("c8y_TrackerMileage");
         Map<String, Object> measurementValue = new HashMap<String, Object>();
@@ -178,7 +178,7 @@ public class MeasurementService {
     
     private MeasurementRepresentation asMeasurementWithMotion(boolean motion, TrackerDevice device, DateTime date) {
         MeasurementRepresentation representation = new MeasurementRepresentation();
-        representation.setTime(date.toDate());
+        representation.setDateTime(date);
         representation.setSource(asSource(device));
         representation.setType("c8y_TrackerMotion");
         MeasurementValue measurementValue = new MeasurementValue();
@@ -194,7 +194,7 @@ public class MeasurementService {
 
     public MeasurementRepresentation getMeasurement(DateTime dateTime, String type, TrackerDevice source) {
         MeasurementRepresentation measurement = new MeasurementRepresentation();
-        measurement.setTime(new DateTime().toDate());
+        measurement.setDateTime(new DateTime());
         measurement.setType(type);
         measurement.setSource(asSource(source));
         return measurement;
