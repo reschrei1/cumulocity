@@ -68,6 +68,7 @@ import c8y.RequiredAvailability;
 import c8y.Restart;
 import c8y.SignalStrength;
 import c8y.SupportedOperations;
+import c8y.CellInfo;
 import c8y.trackeragent.UpdateIntervalProvider;
 import c8y.trackeragent.configuration.TrackerConfiguration;
 import c8y.trackeragent.protocol.coban.device.CobanDevice;
@@ -200,6 +201,14 @@ public class TrackerDevice {
         }
         return mo;
     }
+    
+    public ManagedObjectRepresentation getManagedObject(GId gid) {
+        ManagedObjectRepresentation mo = inventory.get(gid);
+        if(mo == null) {
+            throw new RuntimeException("No device for id " + gid);
+        }
+        return mo;
+    }
 
     public void setGeofence(Geofence fence) throws SDKException {
         if (fence.isActive()) {
@@ -297,6 +306,21 @@ public class TrackerDevice {
         ManagedObjectRepresentation device = new ManagedObjectRepresentation();
         mobile.setCellId(cellId);
         device.set(mobile);
+        device.setId(gid);
+        inventory.update(device);
+    }
+    
+    public void setMobile(Mobile mobile) throws SDKException {
+        ManagedObjectRepresentation device = new ManagedObjectRepresentation();
+        mobile.setImei(imei);
+        device.set(mobile);
+        device.setId(gid);
+        inventory.update(device);
+    }
+    
+    public void setCellInfo(CellInfo cellInfo) {
+        ManagedObjectRepresentation device = new ManagedObjectRepresentation();
+        device.set(cellInfo);
         device.setId(gid);
         inventory.update(device);
     }
@@ -575,6 +599,11 @@ public class TrackerDevice {
 	    copyProps(returnedMo, mo);
 	    return true;
 	}
+	
+    public void updateMoOfDevice(ManagedObjectRepresentation mo, GId gid) {
+        ManagedObjectRepresentation returnedMo = update(mo, gid);
+        copyProps(returnedMo, mo);
+    }
 
 	private ManagedObjectRepresentation create(ManagedObjectRepresentation deviceMo, ID extId) throws SDKException {
 	    deviceMo = inventory.create(deviceMo);
