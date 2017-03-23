@@ -20,17 +20,12 @@
 
 package c8y.trackeragent.device;
 
-import static org.apache.commons.lang.StringUtils.isEmpty;
-
-import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-
-import org.joda.time.DateTime;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import c8y.*;
+import c8y.trackeragent.UpdateIntervalProvider;
+import c8y.trackeragent.configuration.TrackerConfiguration;
+import c8y.trackeragent.protocol.TrackingProtocol;
+import c8y.trackeragent.protocol.coban.device.CobanDevice;
+import c8y.trackeragent.protocol.coban.device.CobanDeviceFactory;
 import com.cumulocity.agent.server.repository.InventoryRepository;
 import com.cumulocity.model.Agent;
 import com.cumulocity.model.ID;
@@ -55,27 +50,17 @@ import com.cumulocity.sdk.client.identity.IdentityApi;
 import com.cumulocity.sdk.client.inventory.InventoryApi;
 import com.cumulocity.sdk.client.measurement.MeasurementApi;
 import com.google.common.collect.Iterables;
+import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import c8y.Battery;
-import c8y.CellInfo;
-import c8y.Command;
-import c8y.Configuration;
-import c8y.Geofence;
-import c8y.IsDevice;
-import c8y.Mobile;
-import c8y.MotionTracking;
-import c8y.Position;
-import c8y.RFV16Config;
-import c8y.RequiredAvailability;
-import c8y.Restart;
-import c8y.SignalStrength;
-import c8y.SupportedOperations;
-import c8y.Tracking;
-import c8y.trackeragent.UpdateIntervalProvider;
-import c8y.trackeragent.configuration.TrackerConfiguration;
-import c8y.trackeragent.protocol.TrackingProtocol;
-import c8y.trackeragent.protocol.coban.device.CobanDevice;
-import c8y.trackeragent.protocol.coban.device.CobanDeviceFactory;
+import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+
+import static c8y.trackeragent.utils.SDKExceptionHandler.handleSDKException;
+import static org.apache.commons.lang.StringUtils.isEmpty;
 
 public class TrackerDevice {
 
@@ -109,6 +94,12 @@ public class TrackerDevice {
     public static final String POWER_ALARM_TYPE = "c8y_PowerAlarm";
     
     public static final String CRASH_DETECTED_EVENT_TYPE = "c8y_CrashDetected";
+    
+    public static final String IGNITION_ON_EVENT_TYPE = "c8y_IgnitionOnEvent";
+    
+    public static final String IGNITION_OFF_EVENT_TYPE = "c8y_IgnitionOffEvent";
+    
+    public static final String TOW_EVENT_TYPE = "c8y_TowEvent";
 
     private Mobile mobile;
 
@@ -123,6 +114,12 @@ public class TrackerDevice {
     private EventRepresentation chargerConnected = new EventRepresentation();
     
     private EventRepresentation crashDetected = new EventRepresentation();
+    
+    private EventRepresentation ignitionOnEvent = new EventRepresentation();
+    
+    private EventRepresentation ignitionOffEvent = new EventRepresentation();
+    
+    private EventRepresentation towEvent = new EventRepresentation();
 
     private AlarmRepresentation fenceAlarm = new AlarmRepresentation();
 
@@ -211,6 +208,12 @@ public class TrackerDevice {
 
     public void setPosition(Position position) throws SDKException {
         EventRepresentation event = aLocationUpdateEvent();
+        setPosition(event, position);
+    }
+    
+    public void setPosition(Position position, DateTime dateTime) throws SDKException {
+        EventRepresentation event = aLocationUpdateEvent();
+        event.setDateTime(dateTime);
         setPosition(event, position);
     }
 
@@ -491,6 +494,18 @@ public class TrackerDevice {
         chargerConnected.setSource(source);
         chargerConnected.setType(CHARGER_CONNECTED);
         chargerConnected.setText("Charger connected");
+        
+        towEvent.setSource(source);
+        towEvent.setType(TOW_EVENT_TYPE);
+        towEvent.setText("Tow detected");
+        
+        ignitionOnEvent.setSource(source);
+        ignitionOnEvent.setType(IGNITION_ON_EVENT_TYPE);
+        ignitionOnEvent.setText("Ignition On");
+        
+        ignitionOffEvent.setSource(source);
+        ignitionOffEvent.setType(IGNITION_OFF_EVENT_TYPE);
+        ignitionOffEvent.setText("Ignition Off");
 
         crashDetected.setSource(source);
         crashDetected.setType(CRASH_DETECTED_EVENT_TYPE);
@@ -739,9 +754,11 @@ public class TrackerDevice {
         ExternalIDRepresentation eir = null;
         try {
             eir = identities.getExternalId(extId);
-        } catch (SDKException x) {
-            if (x.getHttpStatus() != 404) {
-                throw x;
+        } catch (final Exception x) {
+            switch (handleSDKException(x, 401, 404)) {
+                case OTHER_STATUS:
+                case OTHER_EXCEPTION:
+                    throw x;
             }
         }
         return eir != null ? eir.getManagedObject().getId() : null;
@@ -785,6 +802,21 @@ public class TrackerDevice {
     
     public void setTrackingProtocolInfo  (TrackingProtocol trackingProtocol) {
         this.trackingProtocol = trackingProtocol;
+    }
+    
+    public void ignitionOnEvent(DateTime dateTime) {
+        ignitionOnEvent.setDateTime(dateTime);
+        events.create(ignitionOnEvent);   
+    }
+
+    public void ignitionOffEvent(DateTime dateTime) {
+        ignitionOffEvent.setDateTime(dateTime);
+        events.create(ignitionOffEvent);  
+    }
+    
+    public void towEvent(DateTime dateTime) {
+        towEvent.setDateTime(dateTime);
+        events.create(towEvent);  
     }
 
 }
