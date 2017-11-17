@@ -1,0 +1,13 @@
+(^|/)\.
+target
+bin
+.*\.iml
+.*\.orig
+cucumber.html
+dependency-reduced-pom.xml
+syntax: glob
+java-agent/jv-agent/cfg/
+
+syntax:regexp
+.*node_modules.*
+.*bower_components.*
